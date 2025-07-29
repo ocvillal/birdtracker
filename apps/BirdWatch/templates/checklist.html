@@ -1,0 +1,84 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+    display: none;
+}
+.table-container {
+    width: 100%;
+    background-color: #f5f5f5; /* Light gray background */
+    padding: 1em;
+    border-radius: 5px;
+}
+.table {
+    width: 100%;
+}
+</style>
+
+<div class="section" id="app" v-cloak>
+    <h1 class="title"><i class="fa-solid fa-list"></i> BirdWatch</h1>
+    <!-- Redirect Button to my_checklist -->
+    <button class="button is-primary" @click="redirectToMyChecklist()">Go to My Checklist</button>
+    <section class="section">
+        <!-- Table -->
+        <div class="table-container">
+            <nav class="level">
+                <div class="level-left">
+                    <!-- <h3 class="title">Search Species</h3> -->
+                    <h2 class="title">Checklist</h2>
+                </div>
+                <div class="level-right">
+                    <div class="field has-addons">
+                        <p class="control">
+                            <input class="input" type="text" placeholder="Enter Species Name" @input="toggle_search()" v-model="bird_search"/>
+                        </p>
+                    </div>
+                </div>
+            </nav>
+            <table class="table is-fullwidth">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Species</th>
+                        <th style="width: 30%;">Number of Sightings</th>
+                        <th style="width: 30%;">Add Sightings Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="(species, index) in search_active ? search : checklist_data" :key="index">
+                        <tr class="species-row">
+                            <td style="width: 40%;">{{ species.common_name }}</td>
+                            <td style="width: 30%;">{{ species.total_sightings }}</td>
+                            <td style="width: 30%;">
+                                <!-- Search Bar -->
+                                <div class="field has-addons is-pulled-right">
+                                    <p class="control" style="margin-right: 5px;">
+                                        <input type="number" class="input" v-model.number="species.new_sightings" @keyup.enter="handleKeyUp($event, species)">
+                                    </p>
+                                    <!-- Increment Button -->
+                                    <p class="control">
+                                        <button class="button is-success" @click="incrementSightings(species)">
+                                            +1
+                                        </button>
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+[[block page_scripts]]   
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        let checklist_data_url = "[[=XML(checklist_data_url)]]";
+        let my_checklist_url = "[[=XML(my_checklist_url)]]";
+        let update_sightings_url = "[[=XML(update_sightings_url)]]";
+    </script>
+    <script src="js/checklist.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+[[end]]

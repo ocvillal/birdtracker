@@ -1,0 +1,6 @@
+*.pyc
+__pycache__/*
+apps/*/databases/*
+apps/.service/*
+!databases/README.md
+apps/BirdWatch/static/js/config.js

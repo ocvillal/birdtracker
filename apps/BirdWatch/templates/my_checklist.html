@@ -1,0 +1,76 @@
+[[extend 'layout.html']]
+
+<style>
+    [v-cloak] {
+        display: none;
+    }
+    .table-container {
+        width: 100%;
+        background-color: #f5f5f5; /* Light gray background */
+        padding: 1em;
+        border-radius: 5px;
+    }
+    .table {
+        width: 100%;
+    }
+</style>
+
+<div class="section" id="app" v-cloak>
+    <h1 class="title"><i class="fa-solid fa-list"></i> BirdWatch</h1>
+    <button class="button is-primary" @click="redirectToForm()">Go to Form</button>
+    <section class="section">
+        <!-- Table -->
+        <div class="table-container">
+            <nav class="level">
+                <div class="level-left">
+                    <h2 class="title">My Checklist</h2>
+                </div>
+            </nav>
+            <table class="table is-fullwidth">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Event Id</th>
+                        <th style="width: 20%;">Latitude</th>
+                        <th style="width: 20%;">Longitude</th>
+                        <th style="width: 5%;">Date Observed</th>
+                        <th style="width: 5%;">Duration (Minutes)</th>
+                        <th style="width: 20%;">Observer Name</th>
+                        <th style="width: 10%;"></th>
+                        <!-- <th style="width: 10%;"></th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(checklist, index) in my_checklist_data" :key="index" class="checklists-row">
+                        <td style="width: 20%;">{{ checklist.sampling_event_id }}</td>
+                        <td style="width: 20%;">{{ checklist.latitude }}</td>
+                        <td style="width: 20%;">{{ checklist.longitude }}</td>
+                        <td style="width: 5%;">{{ checklist.observation_date_time }}</td>
+                        <td style="width: 5%;">{{ checklist.duration_minutes }}</td>
+                        <td style="width: 20%;">{{ checklist.observer_id }}</td>
+                        <!-- delete -->
+                        <td style="width: 10%;">
+                            <i class="fas fa-trash-alt has-text-danger fa-lg" @click="deleteEntry(checklist.sampling_event_id)"></i>
+                        </td>
+                        <!-- edit -->
+                        <!-- <td style="width: 5%;">
+                            <button class="button is-info is-small" @click="redirectToEdit(checklist.sampling_event_id)">Edit</button>
+                        </td> -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+[[block page_scripts]]   
+<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    let my_checklist_data_url = "[[=XML(my_checklist_data_url)]]";
+    let form_url = "[[=XML(form_url)]]";
+    let delete_entry_url = "[[=XML(delete_entry_url)]]";
+</script>
+<script src="js/my_checklist.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+[[end]]

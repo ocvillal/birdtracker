@@ -1,0 +1,74 @@
+[[extend 'layout.html']]
+
+<div class="section" id="app" v-cloak>
+    <h1 class="title">Add New Checklist</h1>
+    <!-- form -->
+    <form @submit.prevent="submitForm">
+        <div class="field">
+            <label class="label">Latitude</label>
+            <div class="control">
+                <input class="input" type="text" v-model="latitude" placeholder="Enter latitude" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label class="label">Longitude</label>
+            <div class="control">
+                <input class="input" type="text" v-model="longitude" placeholder="Enter longitude" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label class="label">Observation Date</label>
+            <div class="control">
+                <input class="input" type="date" v-model="observation_date_time" pattern="\d{4}-\d{2}-\d{2}" placeholder="YYYY-MM-DD" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label class="label">Duration Minutes</label>
+            <div class="control">
+                <input class="input" type="number" v-model="duration_minutes" placeholder="Enter duration in minutes" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Common Name</label>
+            <div class="control">
+                <input class="input" type="text" v-model="common_name" placeholder="Enter bird common name" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Sighting Count</label>
+            <div class="control">
+                <input class="input" type="number" v-model="sighting_count" placeholder="Enter number of sightings" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <div class="control">
+                <button class="button is-primary" type="submit">Submit</button>
+            </div>
+        </div>
+    </form>
+    <!-- back button -->
+    <div class="field" style="margin-top: -40px; margin-left: 95px;">
+        <div class="control">
+            <button class="button is-primary" @click="redirectToMyChecklist()">Back</button>
+        </div>
+    </div>
+    
+</div>
+
+[[block page_scripts]]   
+<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    let add_checklist_url = "[[=XML(add_checklist_url)]]";
+    let my_checklist_url = "[[=XML(my_checklist_url)]]";
+</script>
+<script src="js/form.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+[[end]]

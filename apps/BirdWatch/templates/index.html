@@ -1,0 +1,65 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+    display: none;
+}
+#map {
+    height: 70vh;
+}
+</style>
+
+<head>
+  <script src="js/config.js"></script>
+  <script>
+      let script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${config.api_key}&libraries=drawing,visualization&callback=initMap&loading=async`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+  </script>
+</head>
+
+<div class="section" id="app" v-cloak>
+  <h1 class="title"><i class="fa-solid fa-cube"></i> BirdWatch</h1>
+  <div class="columns is-mobile">
+    <div class="column is-two-thirds">
+      <div id="map" style="margin-bottom:0.2cm;"></div>
+      <div class="columns is-mobile">
+        <div class="column">
+          <button class="button is-fullwidth is-link" id="statsButton" @click="showStatistics">Statistics on Selected Region</button>
+        </div>
+        <div class="column">
+          <button class="button is-fullwidth" :class="toolButtonClass" @click="toggleTool">{{ toolButtonText }}</button>
+        </div>
+        <div class="column">
+          <button class="button is-fullwidth is-warning" @click="resetMap">Reset Map</button>
+        </div>
+      </div>        
+    </div>
+    <div class="column is-one-third">
+      <div class="table-container" style="max-height: 75vh; overflow-y: auto;">
+        <table class="table is-fullwidth">
+          <thead>
+              <tr>
+                <th style="font-size:2em">Bird Species (A-Z)</th>
+              </tr>
+          </thead>
+          <tbody id="birdSpeciesTableBody">
+              <!-- Table rows will be dynamically populated here -->
+          </tbody>
+        </table>
+      </div>  
+    </div>
+  </div>
+</div>
+
+<script>
+  let load_data_url = "[[=XML(load_data_url)]]";
+  let bird_data_url = "[[=XML(bird_data_url)]]";
+  let get_sightings_url = "[[=XML(get_sightings_url)]]";
+</script>
+
+[[block page_scripts]]
+<script src="js/index.js"></script>
+[[end]]

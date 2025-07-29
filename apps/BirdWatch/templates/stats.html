@@ -1,0 +1,136 @@
+[[extend 'layout.html']]
+
+[[block content]]
+<div class="section" id="app" v-cloak>
+    <h1 class="title"><i class="fa-solid fa-cube"></i> BirdWatch</h1>
+    <div class="columns is-multiline">
+        <div class="column is-full">
+            <div class="box has-background-light">
+                <nav class="level">
+                </nav>
+                <nav class="level">
+                    <div class="level-item has-text-centered">
+                        <div class="statistics">
+                            <p class="heading">Total Minutes of Watch Time</p>
+                            <p class="subtitle is-size-2 has-text-weight-bold"><i class="fas fa-clock is-size-3"></i>  {{ total_minutes }}</p>
+                        </div>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <div class="statistics">
+                            <p class="heading">Total Number of Sightings</p>
+                            <p class="subtitle is-size-2 has-text-weight-bold"><i class="fas fa-eye is-size-3"></i>  {{ num_sightings }}</p>
+                        </div>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <div class="statistics">
+                            <p class="heading">Most Viewed Species</p>
+                            <p class="subtitle is-size-2 has-text-weight-bold"><i class="fas fa-dove is-size-3"></i>  {{ most_viewed_bird_common_name }}</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="column is-three-fifths">
+            <div class="box is-fullheight has-background-light">
+                <h1 class="title has-text-centered">Species Sightings</h1>
+                <!-- Search Input -->
+                <div class="field">
+                    <div class="control">
+                        <input class="input" type="text" placeholder="Search species..." v-model="searchQuery">
+                    </div>
+                </div>
+                <!-- Entries Per Page Select -->
+                <div class="field">
+                    <div class="control">
+                        <div class="select">
+                            <select v-model="entriesPerPage">
+                                <option v-for="n in [5, 10, 15, 20]" :value="n">{{ n }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <table id="speciesTable" class="table is-fullwidth is-hoverable is-striped">
+                    <thead>
+                        <tr>
+                            <th class="has-text-centered"><strong class="is-size-3">Species</strong></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in paginatedSpeciesSightings" :key="row.common_name">
+                            <td class="is-size-4 has-text-centered">{{ row.sightings.common_name }}</td>
+                            <td>
+                                <button class="button is-info" @click="showTiming(row.sightings.common_name, row.sightings.sampling_event_id, row.total_sightings )">
+                                    <span class="icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Pagination Controls -->
+                <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+                    <a class="pagination-previous" @click="prevPage">Previous</a>
+                    <a class="pagination-next" @click="nextPage">Next</a>
+                    <ul class="pagination-list">
+                        <li v-for="page in totalPages" :key="page">
+                            <a class="pagination-link" @click="setPage(page)" :class="{ 'is-current': currentPage === page }">{{ page }}</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="column is-two-fifths">
+            <div class="box is-fullheight has-background-light">
+                <h1 class="title has-text-centered">Sightings Per Day</h1>
+                <!-- Canvas for sightings per day chart -->
+                <canvas id="sightingsPerDayChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div id="popupModal" class="modal" :class="{ 'is-active': showModal }">
+        <div class="modal-background" @click="closePopup"></div>
+        <div class="modal-content">
+            <div class="box is-rounded popup-box">
+                <button class="delete is-pulled-right" aria-label="close" @click="closePopup"></button>
+                <h1 class="subtitle is-2 has-text-weight-bold has-text-centered">{{ currentSpecies }}</h1>
+                 <!-- Image -->
+                <div class="has-text-centered">
+                    <img src="../static/bird.jpg" alt="Species Image" style="max-width: 100%; max-height: 300px;">
+                </div>
+                <!-- End Image -->
+                <div v-if="timing_data" class="subtitle is-4">
+                    <p><strong>Seen On:</strong> {{ timing_data }}</p>
+                    <p><strong>Count:</strong> {{ observation_count }}</p>
+                </div>
+                <div v-else class="has-text-centered">
+                    No data available
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+[[end]]
+
+[[block page_scripts]]
+<!-- Include Vue.js library -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<!-- Include Axios library -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Include Font Awesome library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- Define the URL for fetching stats data -->
+<script>
+    let get_stats_url = "[[=XML(get_stats_url)]]";
+    let get_timing_url = "[[=XML(get_timing_url)]]";
+    let get_sightings_per_day_url = "[[=XML(get_sightings_per_day_url)]]";
+</script>
+<script src="js/stats.js"></script>
+[[end]]
+[[end]]

@@ -1,0 +1,289 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+    display: none;
+}
+.line-chart {
+    width: 100%;
+    height: 400px;
+}
+</style>
+
+
+<div class="section" id="app" v-cloak>
+    <h1 class="title"><i class="fa-solid fa-list"></i> BirdWatch</h1>
+    <h2 class="title">Location Statistics</h2>
+    <section class="section">
+        <!-- section for facts -->
+        <div class="level">
+             <!-- select different fact title -->
+            <div class="level-left">
+                <div v-if="location_facts == 1">
+                    <h3 class="title">Location Facts: Region's User Stats</h3>
+                </div>
+                <div v-else-if="location_facts == 2">
+                    <h3 class="title">Location Facts: Region's Bird Stats</h3>
+                </div>
+                <div v-else-if="location_facts == 3">
+                    <h3 class="title">Location Facts: Region's Common Birds</h3>
+                </div>
+                <div v-else>
+                    <h3 class="title">Location Facts: Region's Rare Birds</h3>
+                </div>
+            </div>
+            <div class="level-right">
+                <button class="button is-info" @click="next_facts()">Next Stat</button>
+            </div>
+        </div>    
+        <!-- display different facts -->
+        <div class="box " @click="next_facts()">
+            <!-- v-if="" -->
+            <div v-if="location_facts == 1">
+                <nav class="level">
+                    <div class="level-item has-text-centered">
+                        <div>
+                        <p class="heading">Total Time Observed (Minutes)</p>
+                        <p class="title"> <i class="fa-solid fa-stopwatch"></i> {{ total_minutes }}</p>
+                        </div>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <div>
+                        <p class="heading">Number of Observers</p>
+                        <p class="title"> <i class="fa-solid fa-user-group"></i>{{ total_observers }}</p>
+                        </div>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <div>
+                        <p class="heading">Total Observations</p>
+                        <p class="title"><i class="fa-solid fa-check"></i>{{ total_observations }}</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div v-if="location_facts == 2">
+                <nav class="level">
+                    <div class="level-item has-text-centered">
+                        <div>
+                        <p class="heading">Total Bird Species</p>
+                        <p class="title"><i class="fa-solid fa-crow"></i>{{ total_bird_count }}</p>
+                        </div>
+                    </div>
+                    <div class="level-item has-text-centered">
+                        <div>
+                            <p class="heading">Total Observations</p>
+                            <p class="title"><i class="fa-solid fa-binoculars"></i>{{ total_birds_observed }}</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div v-if="location_facts == 3">
+                <nav class="level">
+                    <div class="level-item has-text-centered" v-for="bird in common_birds">
+                        <div>
+                            <p class="heading">{{ bird.common_name }}</p>
+                            <p class="title"><i class="fa-brands fa-earlybirds"></i>{{ bird.total_sightings }}</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div v-if="location_facts == 4">
+                <nav class="level">
+                    <div class="level-item has-text-centered" v-for="bird in rare_birds">
+                        <div>
+                            <p class="heading">{{ bird.common_name }}</p>
+                            <p class="title"><i class="fa-solid fa-kiwi-bird"></i></i>{{ bird.total_sightings }}</p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- Table of birds and contributors ranking -->
+        <section class="section">
+            <div class="columns">
+                <div class="column is-three-fifths">
+                    <nav class="level">
+                        <div class="level-left">
+                            <h3 class="title">Species in Region</h3>
+                        </div>
+                        <!-- table search bar -->
+                        <div class="level-right">
+                            <div class="field has-addons">
+                                <p class="control">
+                                    <input class="input" type="text" placeholder="Find Ya Bird" v-model="bird_search" @change="toggle_search(false)"/>
+                                </p>
+                                <p class="control">
+                                    <div v-if="!search_active">
+                                        <button class="button is-info">Search</button>
+                                    </div>
+                                    <div v-else>
+                                        <button class="button is-danger" @click="toggle_search(true)">Reset</button>
+                                    </div>
+                                </p>
+                            </div>
+                        </div>
+                    </nav>
+                    <!-- Sort by -->
+                    <div v-if="sortby == 2 || sortby == 0">
+                        <button class="button is-info" @click="sorting">Sorted By Name: A-Z <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <div v-if="sortby == 3">
+                        <button class="button is-info" @click="sorting">Sorted By Name: Z-A <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <div v-if="sortby == 4">
+                        <button class="button is-info" @click="sorting">Sorted By Lowest Checklist Count <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <div v-if="sortby == 5">
+                        <button class="button is-info" @click="sorting">Sorted By Highest Checklist Count <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <div v-if="sortby == 6">
+                        <button class="button is-info" @click="sorting">Sorted By Lowest Sightings Count <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <div v-if="sortby == 1">
+                        <button class="button is-info" @click="sorting">Sorted By Highest Sightings Count <i class="fa-solid fa-sort"></i></button>
+                    </div>
+                    <!-- table -->
+                    <table class="table is-striped is-hoverable table is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Species</th>
+                                <th>Number of Checklist</th>
+                                <th>Number of Sighting in Region</th>
+                                <th>Info</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="!search_active" class="species-row" v-for="(species, index) in location_data" :key="index">
+                                <td>{{ species.common_name }}</td>
+                                <td>{{ species.total_checklist }}</td>
+                                <td>{{ species.total_sightings }}</td>
+                                <td>
+                                    <button class="button is-info" @click="openModal(index, species.common_name)">
+                                        <span class="icon">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </button>
+                                    <!-- Pop up of graph -->
+                                    <div class="modal" :id="'myModal-' + index">
+                                        <div class="modal-background" @click="closeModal(index)"></div>
+                                        <div class="modal-card">
+                                            <header class="modal-card-head">
+                                                <p class="modal-card-title">{{ species.common_name }} Over Time</p>
+                                                <button class="delete" aria-label="close" @click="closeModal(index)"></button>
+                                            </header>
+                                            <section class="modal-card-body">
+                                                <div :id="'lineChart-' + index" class="line-chart"></div>
+                                            </section>
+                                            <footer class="modal-card-foot">
+                                                <p>*Real time data from our users</p>
+                                            </footer>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- table but for when there is a search -->
+                            <tr v-else class="species-row" v-for="(species, ind) in search" :key="ind">
+                                <td>{{ species.common_name }}</td>
+                                <td>{{ species.total_checklist }}</td>
+                                <td>{{ species.total_sightings }}</td>
+                                <td>
+                                    <button class="button is-info" @click="openModal(ind, species.common_name)">
+                                        <span class="icon">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </button>
+                                    <!-- pop up for graph -->
+                                    <div class="modal" :id="'myModal-' + ind">
+                                        <div class="modal-background" @click="closeModal(ind)"></div>
+                                        <div class="modal-card">
+                                            <header class="modal-card-head">
+                                                <p class="modal-card-title">{{ species.common_name }} Over Time</p>
+                                                <button class="delete" aria-label="close" @click="closeModal(ind)"></button>
+                                            </header>
+                                            <section class="modal-card-body">
+                                                <div :id="'lineChart-' + ind" class="line-chart"></div>
+                                            </section>
+                                            <footer class="modal-card-foot">
+                                                <p>*Real time data from our users</p>
+                                            </footer>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- contributor ranking -->
+                <div class="column">
+                    <nav class="level">
+                        <div class="level-left">
+                            <h3 class="title">Top Region Contributors</h3>
+                        </div>
+                        <div class="level-right">
+                            <div v-if="contributors==false">
+                                <button class="button is-info" @click="toggle_contributors()">Top Watchers</button>
+                            </div>
+                            <div v-else>
+                                <button class="button is-info" @click="toggle_contributors()">Top Contributors</button>
+                            </div>
+                        </div>
+                    </nav>
+                    <!-- contributor for minutes -->
+                    <div v-if="contributors==false">
+                        <div v-for="(cont, index) in contributors_minutes" :key="index" :class="{
+                            'box has-background-warning': index === 0,
+                            'box has-background-grey-light': index === 1,
+                            'box has-background-warning-dark': index === 2,
+                            'box': index > 2}">
+                            <b class="is-size-3 has-text-black-bis">
+                                <strong> {{index+1}}.{{ cont.observer }}</strong>
+                                <i v-if="index < 3" class="fa-solid fa-medal" style="margin-left: 5px;"></i>
+                            </b>
+                            <br>
+                            <b class="is-size-5 has-text-black-ter">Observing Time (Mins): {{ cont.total_minutes }}</b>
+                            <br>
+                            <b class="is-size-5 has-text-black-ter">Total Observations: {{ cont.total_obseravation }}</b>
+                        </div>
+                    </div>
+                    <!-- contributors for birds seens -->
+                    <div v-else>
+                        <div v-for="(cont, index) in contributors_obsertvations" :key="index" :class="{
+                            'box has-background-warning': index === 0,
+                            'box has-background-grey-light': index === 1,
+                            'box has-background-warning-dark': index === 2,
+                            'box': index > 2}">
+                            <b class="is-size-3 has-text-black-bis">
+                                <strong> {{index+1}}.{{ cont.observer }}</strong>
+                                <i v-if="index < 3" class="fa-solid fa-medal" style="margin-left: 5px;"></i>
+                            </b>
+                            <br>
+                            <b class="is-size-5 has-text-black-ter">Total Observations: {{ cont.total_obseravation }}</b>
+                            <br>
+                            <b class="is-size-5 has-text-black-ter">Observing Time (Mins): {{ cont.total_minutes }}</b>
+                        </div>
+                    </div>
+                
+            </section>
+        </section>
+    </div>
+    
+</div>
+
+[[block page_scripts]]   
+<script>
+</script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    let location_url = "[[=XML(location_url)]]";
+    let location_data_url = "[[=XML(location_data_url)]]";
+    let location_graph_data_url = "[[=XML(location_graph_data_url)]]";
+</script>
+<script src="js/location.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+[[end]]
+[[end]]
+
+
